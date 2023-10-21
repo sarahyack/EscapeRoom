@@ -3,7 +3,7 @@ package models;
 public class Item {
 	private String name;
 	private String description;
-	private boolean hasIt = false;
+	protected boolean hasIt = false;
 	public boolean needed = true;
 	
 	public Item(String name, String description) {
@@ -38,4 +38,8 @@ public class Item {
 		return description;
 	}
 	
+	@Override
+	public String toString() {
+		return name + ": " + description;
+	}
 }

@@ -27,7 +27,7 @@ public class Player {
 	
 	public Item findItemInInventory(String itemName) {
 		for (Item item : inventory) {
-			if (item.getName().equals(itemName)) {
+			if (item.getName().equalsIgnoreCase(itemName)) {
 				return item;
 			}
 		}
