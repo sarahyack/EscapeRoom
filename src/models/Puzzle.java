@@ -13,6 +13,7 @@ public abstract class Puzzle {
 		this.description = description;
 		this.isSolved = false;
 		this.type = puzzleType;
+		
 	}
 	
 	public String getDescription() {

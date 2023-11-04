@@ -12,13 +12,13 @@ public class Item {
 	}
 	
 	public void addToInventory() {
-		hasIt = true;
+		this.hasIt = true;
 		System.out.println("You added " + name + " to your Inventory.");
 	}
 	
 	public void use() {
-		if (hasIt) {
-			System.out.println("You used" + name + ".");
+		if (this.hasIt == true) {
+			System.out.println("You used " + name + ".");
 			needed = false;
 		} else {
 			System.out.println("You don't have " + name + " yet.");

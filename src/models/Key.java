@@ -6,8 +6,8 @@ public class Key extends Item {
 		super(name, description);
 	}
 	
-	public void setHasIt(Player player, Room currentRoom, Box box) {
-		if (box.isAccessible && !box.isLocked) {
+	public void setHasIt(Player player, Room currentRoom) {
+		if (currentRoom.roomBox.isAccessible() && !currentRoom.roomBox.getLocked()) {
 			hasIt = true;
 		} else {
 			hasIt = false;
@@ -16,7 +16,7 @@ public class Key extends Item {
 	
 	public void unlockDoor(Room currentRoom, Player player) {
 		if (hasIt == true) {
-			currentRoom.hasLockedDoor = false;
+			currentRoom.toggleLocked(false);
 			Item key = player.findItemInInventory(this.getName());
 			player.removeFromInventory(key);
 			System.out.println("Door has been unlocked.");

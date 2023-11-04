@@ -5,17 +5,17 @@ import java.util.ArrayList;
 public class Room {
 	private String name;
 	private String description;
-	public boolean hasLockedDoor = true;
+	private boolean hasLockedDoor = true;
 	private ArrayList<Item> roomContents;
 	public Box roomBox;
-	private Puzzle puzzle;
+	private ArrayList<Puzzle> roomPuzzles;
 	
-	public Room(String name, String description, ArrayList<Item> contents, Box currentBox, Puzzle puzzle) {
+	public Room(String name, String description, ArrayList<Item> contents, Box currentBox, ArrayList<Puzzle> puzzles) {
 		this.name = name;
 		this.description = description;
 		this.roomContents = contents;
 		this.roomBox = currentBox;
-		this.puzzle = puzzle;
+		this.roomPuzzles = puzzles;
 	}
 	
 	public Item findItemByName(String itemName) {
@@ -33,6 +33,10 @@ public class Room {
 		return hasLockedDoor;
 	}
 	
+	public void toggleLocked(boolean state) {
+		hasLockedDoor = state;
+	}
+	
 	public void addItem(Item item) {
 		roomContents.add(item);
 	}
@@ -48,7 +52,39 @@ public class Room {
 		System.out.println(this.roomContents);
 	}
 	
-	public Puzzle getPuzzle() {
-		return puzzle;
+	public ArrayList<Puzzle> getPuzzles() {
+		return roomPuzzles;
 	}
+	
+	public void addPuzzle(Puzzle puzzle) {
+		roomPuzzles.add(puzzle);
+	}
+	
+	public boolean isAllPuzzlesSolved() {
+		for (Puzzle puzzle : roomPuzzles) {
+			if (!puzzle.isSolved) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getItemList() {
+		return roomContents.toString();
+	}
+	
+	public boolean hasPuzzles() {
+	    return !this.roomPuzzles.isEmpty();
+	}
+
+	public void showPuzzles() {
+	    for (Puzzle puzzle : roomPuzzles) {
+	        System.out.println("- " + puzzle.getDescription());
+	    }
+	}
+
 }
