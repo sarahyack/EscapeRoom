@@ -8,11 +8,23 @@
       ],
       "puzzles": [
         {
-          "type": "WordPuzzle",
+          "type": "WORD",
           "description": "I require a pinkie's agility from one born into nobility",
           "solution": "Teacup"
         }
-      ]
+      ],
+      "box": {
+		  "isLocked": true,
+		  "description": "Shiny Wooden Box",
+		  "items": [
+			  {"name": "Teacup", "description":"a cup for tea."},
+			  {"name": "Tube", "description": "a roll of metal, probably useless."}
+		  ]
+	  }
     }
+    
+    
   ]
+  
+  
 }

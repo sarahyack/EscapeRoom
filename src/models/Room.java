@@ -15,7 +15,7 @@ public class Room {
 		this.description = description;
 		this.roomContents = contents;
 		this.roomBox = currentBox;
-		this.roomPuzzles = puzzles;
+		this.roomPuzzles = puzzles != null ? puzzles: new ArrayList<>();
 	}
 	
 	public Item findItemByName(String itemName) {
