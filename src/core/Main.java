@@ -41,16 +41,18 @@ public class Main {
 	        } else {
 	            parser.parseCommand(input, player, currentRoom);
 	            
-	            if (currentRoom.isAllPuzzlesSolved()) {
+	            if (currentRoom.isRoomCompleted()) {
 	                System.out.println("Congratulations, you've completed the room!");
-	                // Move to the next room
+	                player.dropUnnecessaryItems();
 	                currentRoomIndex++;
 	                if (currentRoomIndex >= allRooms.size()) {
-	                    System.out.println("You have escaped all rooms! Game over!");
+	                    System.out.println("You have escaped all rooms!");
 	                    break;
 	                } else {
 	                    // Setup for the next room
 	                    currentRoom = allRooms.get(currentRoomIndex);
+	                    System.out.println("You have moved to the next room.");
+	                    System.out.print("You are in ");
 	                    currentRoom.getDescription();
 	                }
 	            }

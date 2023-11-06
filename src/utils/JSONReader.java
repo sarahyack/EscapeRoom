@@ -86,6 +86,8 @@ public class JSONReader {
 	    String description = boxJson.getString("description");
 	    JSONArray boxItemsJson = boxJson.getJSONArray("items");
 	    ArrayList<Item> boxItems = new ArrayList<>();
+	    JSONArray itemsNeededArr = boxJson.getJSONArray("itemsNeededForNextRoom");
+	    ArrayList<Boolean> itemsNeeded = new ArrayList<>();
 
 	    for (int i = 0; i < boxItemsJson.length(); i++) {
 	        JSONObject itemJson = boxItemsJson.getJSONObject(i);
@@ -93,8 +95,12 @@ public class JSONReader {
 	        String itemDescription = itemJson.getString("description");
 	        boxItems.add(new Item(itemName, itemDescription));
 	    }
+	    
+	    for (int i = 0; i < itemsNeededArr.length(); i++) {
+	    	itemsNeeded.add(itemsNeededArr.getBoolean(i));
+	    }
 
-	    return new Box(isLocked, description, boxItems);
+	    return new Box(isLocked, description, boxItems, itemsNeeded);
 	}
 
 	private static Puzzle createPuzzleByType(JSONObject puzzleObject, Map<String, Item> itemMap) {
@@ -107,8 +113,7 @@ public class JSONReader {
 	            return new WordPuzzle(description, solution);
 	        case "OBJECT":
 	            String requiredItemName = puzzleObject.getString("requiredItem");
-	            Item requiredItem = itemMap.get(requiredItemName);
-	            return new ObjectPuzzle(description, requiredItem);
+	            return new ObjectPuzzle(description, requiredItemName);
 	        case "MOVEMENT":
 	            String item = puzzleObject.getString("item");
 	            String action = puzzleObject.getString("action");

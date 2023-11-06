@@ -20,8 +20,6 @@ public class Room {
 	
 	public Item findItemByName(String itemName) {
 		for (Item item: roomContents) {
-			System.out.println("Checking item: " + item.getName());
-			System.out.println("Comparing: " + item.getName() + " with " + itemName);
 			if (item.getName().equalsIgnoreCase(itemName)) {
 				return item;
 			}
@@ -48,8 +46,12 @@ public class Room {
 	public void getDescription() {
 		System.out.println(this.name);
 		System.out.println(this.description);
-		System.out.print("Items in Room: ");
-		System.out.println(this.roomContents);
+		if (this.roomContents.isEmpty()) {
+			System.out.println("There are no items in the Room.");
+		} else {
+			System.out.print("Items in Room: ");
+			System.out.println(this.roomContents);
+		}
 	}
 	
 	public ArrayList<Puzzle> getPuzzles() {
@@ -85,6 +87,22 @@ public class Room {
 	    for (Puzzle puzzle : roomPuzzles) {
 	        System.out.println("- " + puzzle.getDescription());
 	    }
+	}
+	
+	public boolean isRoomCompleted() {
+	    if (!isAllPuzzlesSolved()) {
+	        return false;
+	    }
+
+	    if (roomBox != null && roomBox.getLocked() == true) {
+	        return false;
+	    }
+
+	    if (hasLockedDoor()) {
+	        return false;
+	    }
+
+	    return true;
 	}
 
 }

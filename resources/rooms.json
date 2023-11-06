@@ -2,14 +2,14 @@
   "rooms": [
     {
       "name": "Room 1",
-      "description": "Locked Room with a Box.",
+      "description": "A Room with a Box.",
       "items": [
-        { "name": "Gear", "description": "A single little gear" }
+		  
       ],
       "puzzles": [
         {
           "type": "WORD",
-          "description": "I require a pinkie's agility from one born into nobility",
+          "description": "I require a pinkie's agility from one born into nobility.",
           "solution": "Teacup"
         }
       ],
@@ -18,10 +18,39 @@
 		  "description": "Shiny Wooden Box",
 		  "items": [
 			  {"name": "Teacup", "description":"a cup for tea."},
-			  {"name": "Tube", "description": "a roll of metal, probably useless."}
-		  ]
+			  {"name": "Tube", "description": "a shiny roll of metal, probably useless."}
+		  ],
+		  "itemsNeededForNextRoom": [false, true]
 	  }
-    }
+    },
+    {
+		"name": "Room 2",
+		"description": "Another Room with a Box.",
+		"items": [
+        	{"name": "Eyeglasses", "description": "a pair of reading glasses."}
+	     ],
+	     "puzzles": [
+	        {
+	          "type": "WORD",
+	          "description": "The more you take, the more you leave behind.",
+	          "solution": "Footsteps"
+	        },
+	        {
+	          "type": "OBJECT",
+	          "description": "A puzzle that needs a shiny item",
+	          "requiredItem": "Tube"
+	        }
+	      ],
+		 "box": {
+			  "isLocked": true,
+			  "description": "Shiny Wooden Box",
+			  "items": [
+				  {"name": "Toy", "description": "a plush children's toy."},
+				  {"name": "Candle", "description": "an unlit candle."}
+			  ],
+			  "itemsNeededForNextRoom": [false, true]
+		  }
+	}
     
     
   ]

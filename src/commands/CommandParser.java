@@ -4,14 +4,7 @@ import java.util.Arrays;
 
 import java.util.ArrayList;
 
-// import models.Box;
-import models.Item;
-import models.Key;
-import models.OpenableItem;
-import models.Player;
-import models.Puzzle;
-import models.Room;
-import models.WordPuzzle;
+import models.*;
 
 public class CommandParser {
 	
@@ -63,9 +56,11 @@ public class CommandParser {
 	    } else {
 	        System.out.println("The door is unlocked.");
 	    }
-	    if (room.hasPuzzles()) {
+	    if (room.hasPuzzles() && room.isAllPuzzlesSolved() == false) {
 	        System.out.println("There's a puzzle here: ");
 	        room.showPuzzles();
+	    } else if (room.isAllPuzzlesSolved() == true) {
+	    	System.out.println("There are no more puzzles to solve.");
 	    }
 	    System.out.println("What would you like to do?");
 	}
@@ -89,22 +84,21 @@ public class CommandParser {
 	}
 	
 	public void checkInventory(Player player) {
-		System.out.println("Items In Your Inventory:");
 		player.showInventory();
 	}
 	
 	public void showHelp() {
 		String[] commands = {
+				"look - Get a description of the Room",
+				"help - Display list of Commands",
+				"inventory - Display the Contents of your Inventory",
 				"pick up [item] - Pick up an Item in the Room",
 				"use [item] - Use an Item from Inventory",
 				"drop [item] - Drop Item into Room",
 				"examine [item] - Examine Item",
 				"solve [solution]- Solve a Puzzle",
-				"look - Get a description of the Room",
 				"open [item or box] - Open an Openable Item or the Box",
-				"quit - Exit Game",
-				"help - Display list of Commands",
-				"inventory - Display the Contents of your Inventory"
+				"quit - Exit Game"
 		};
 		
 		System.out.println("List of Commands:");
@@ -116,31 +110,29 @@ public class CommandParser {
 	private void solveWordPuzzle(Puzzle puzzle, String[] parts, Player player, Room currentRoom) {
 	    if (parts.length > 1) {
 	        puzzle.trySolve(parts[1], player, currentRoom);
-	        if (puzzle.isSolved() == true) {
-	        	currentRoom.roomBox.setAccessible(true);
-	        	System.out.println("The Box is now Accessible.");
-	        	if (currentRoom.roomBox.getLocked() == true) {
-		    		currentRoom.roomBox.toggleLockBox(false);
-		    	}
-	        }
 	    } else {
 	        System.out.println("You need to provide an answer to solve the puzzle.");
 	    }
 	}
-
-	private void solveOtherPuzzle(Puzzle puzzle, Player player, Room currentRoom) {
-	    puzzle.trySolve(player, currentRoom);
-	    if (puzzle.isSolved() == true) {
-	    	currentRoom.roomBox.setAccessible(true);
+	
+	private boolean determineIfDone(Room currentRoom) {
+		if (currentRoom.isAllPuzzlesSolved()) {
+			currentRoom.roomBox.setAccessible(true);
+			System.out.println("The Box is now Accessible.");
 	    	if (currentRoom.roomBox.getLocked() == true) {
 	    		currentRoom.roomBox.toggleLockBox(false);
 	    	}
-	    }
+		}
+		
+		if (currentRoom.isRoomCompleted()) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	
 	public void parseCommand(String input, Player player, Room currentRoom) {
-		System.out.println("Parsing command: " + input);
 		String[] parts = input.split(" ");
 	    String command = parts[0].toLowerCase();
 
@@ -154,14 +146,10 @@ public class CommandParser {
 	    
 	    Item item = null;
 	    
-	    System.out.println("Command: " + command);
-	    System.out.println("Combined Command: " + combinedCommand);
 	    
 	    if (!Arrays.asList(itemlessCommands).contains(command) || Arrays.asList(multiWordCommands).contains(combinedCommand)) {
 	        item = currentRoom.findItemByName(objectName);
-	        System.out.println("Found item: " + item);
 	        if (item == null && "key".equals(objectName) && currentRoom.hasLockedDoor()) {
-	        	System.out.println("Attempting to find item...");
 	        	item = player.findItemInInventory(objectName);
 	        }
 	    }
@@ -198,17 +186,18 @@ public class CommandParser {
 	    	showHelp();
 	    } else if ("examine".equalsIgnoreCase(command)) {
 	    	item = player.findItemInInventory(objectName);
+	    	if (item == null) {
+	    		item = currentRoom.findItemByName(objectName);
+	    	}
 	    	examine(item);
 	    } else if ("inventory".equals(command)) {
 	    	checkInventory(player);
 	    } else if ("solve".equals(command)) {
-	    	System.out.println("Trying to solve a puzzle...");
 	    	ArrayList<Puzzle> puzzles = currentRoom.getPuzzles();
 	    	if (puzzles == null || puzzles.isEmpty()) {
 	    		System.out.println("There is no puzzle here to solve.");
 	    		return;
 	    	} else {
-	    		System.out.println("Found " + puzzles.size() + " puzzle(s).");
 	    		for (Puzzle puzzle : puzzles) {
 		    		if (puzzle.isSolved()) {
 		    			System.out.println("This puzzle is solved.");
@@ -216,11 +205,20 @@ public class CommandParser {
 		    		}
 		    		
 		    		if (puzzle instanceof WordPuzzle) {
-		    			System.out.println("This is a WordPuzzle.");
 		    			solveWordPuzzle(puzzle, parts, player, currentRoom);
-		    		} else {
-		    			System.out.println("This is a different type of puzzle.");
-		    			solveOtherPuzzle(puzzle, player, currentRoom);
+		    			determineIfDone(currentRoom);
+		    			break;
+		    		} else if (puzzle instanceof ObjectPuzzle){
+		    			puzzle.trySolve(player, currentRoom);
+		    			determineIfDone(currentRoom);
+		    			break;
+		    		} else if (puzzle instanceof MovementPuzzle) {
+		    			String action = (parts.length > 1) ? parts[1] : "invalid";
+		    			puzzle.trySolve(action, player, currentRoom);
+		    			determineIfDone(currentRoom);
+		    			break;
+		    		} else if (puzzle instanceof AnimalPuzzle) {
+		    			System.out.println("Implement this.");
 		    		}
 		    	}
 	    	}

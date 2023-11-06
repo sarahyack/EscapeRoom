@@ -1,9 +1,9 @@
 package models;
 
 public class ObjectPuzzle extends Puzzle {
-	private Item requiredItem;
+	private String requiredItem;
 	
-	public ObjectPuzzle(String description, Item requiredItem) {
+	public ObjectPuzzle(String description, String requiredItem) {
 		super(description, PuzzleType.OBJECT);
 		this.requiredItem = requiredItem;
 	}
@@ -11,8 +11,10 @@ public class ObjectPuzzle extends Puzzle {
 	@Override
 	public boolean trySolve(Player player, Room currentRoom) {
 		// TODO Auto-generated method stub
-		if (player.findItemInInventory(requiredItem.getName()) != null) {
+		Item item = player.findItemInInventory(requiredItem);
+		if (item != null) {
 			isSolved = true;
+			player.removeFromInventory(item);
 			return isSolved;
 		} else {
 			return isSolved;

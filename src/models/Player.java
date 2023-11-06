@@ -19,18 +19,39 @@ public class Player {
 	}
 	
 	public void showInventory() {
-		for (Item item : inventory) {
-			System.out.print(item.getName() + " - ");
-			System.out.println(item.getDescription());
+		if (hasItemsInInventory()) {
+			System.out.println("Items In Your Inventory:");
+			for (Item item : inventory) {
+				System.out.print(item.getName() + " - ");
+				System.out.println(item.getDescription());
+			}
+		} else {
+			System.out.println("There are no items in your inventory.");
 		}
 	}
 	
 	public Item findItemInInventory(String itemName) {
-		for (Item item : inventory) {
-			if (item.getName().equalsIgnoreCase(itemName)) {
-				return item;
+			for (Item item : inventory) {
+				if (item.getName().equalsIgnoreCase(itemName)) {
+					return item;
+				}
 			}
-		}
 		return null;
 	}
+	
+	public boolean hasItemsInInventory() {
+		if (inventory.isEmpty()) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	public void dropUnnecessaryItems() {
+        for (Item item : inventory) {
+        	if (!item.needed) {
+        		removeFromInventory(item);
+        	}
+        }
+    }
 }
