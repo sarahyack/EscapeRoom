@@ -31,11 +31,6 @@
 	     ],
 	     "puzzles": [
 	        {
-	          "type": "WORD",
-	          "description": "The more you take, the more you leave behind.",
-	          "solution": "Footsteps"
-	        },
-	        {
 	          "type": "OBJECT",
 	          "description": "A puzzle that needs a shiny item",
 	          "requiredItem": "Tube"
@@ -50,6 +45,34 @@
 			  ],
 			  "itemsNeededForNextRoom": [false, true]
 		  }
+	},
+	{
+		"name": "Room 3",
+		"description": "Guess what? Another Room with a Box.",
+		"items": [
+			{"name": "Stick", "description": "a piece of nature."}
+		],
+		"puzzles": [
+			{
+				"type": "WORD",
+				"description": "The more you take, the more you leave behind.",
+				"solution": "Footsteps"
+			},
+			{
+				"type":"OBJECT",
+				"description":"A hole in the wall. Looks like there's space for something.",
+				"requiredItem": "Stick"
+			}
+		],
+		"box": {
+			"isLocked": true,
+			"description":"",
+			"items":[
+					{"name": "Ball", "description":""},
+					{"name": "Shard", "description":""}
+			],
+			"itemsNeededForNextRoom": [false, true]
+		}
 	}
     
     
