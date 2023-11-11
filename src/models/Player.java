@@ -1,8 +1,10 @@
 package models;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Player {
 	private ArrayList<Item> inventory;
+	private List<InventoryObserver> observers = new ArrayList<>();
 	
 	public Player() {
 		inventory = new ArrayList<>();
@@ -11,6 +13,7 @@ public class Player {
 	public void addToInventory(Item item) {
 		inventory.add(item);
 		item.addToInventory();
+		notifyObservers();
 	}
 	
 	public void removeFromInventory(Item item) {
@@ -52,6 +55,24 @@ public class Player {
         	if (!item.needed) {
         		removeFromInventory(item);
         	}
+        }
+    }
+	
+	public ArrayList<Item> getInventory() {
+		return inventory;
+	}
+	
+	public void addObserver(InventoryObserver observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(InventoryObserver observer) {
+        observers.remove(observer);
+    }
+
+    private void notifyObservers() {
+        for (InventoryObserver observer : observers) {
+            observer.inventoryChanged(this);
         }
     }
 }

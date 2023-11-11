@@ -19,7 +19,7 @@ public class Main {
 
         SwingUtilities.invokeLater(() -> {
             GameTerminal terminal = new GameTerminal(parser, player, allRooms);
-            terminal.setVisible(true);
+            player.addObserver(terminal);
         });
 	}
 
