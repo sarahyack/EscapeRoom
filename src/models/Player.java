@@ -19,6 +19,7 @@ public class Player {
 	public void removeFromInventory(Item item) {
 		inventory.remove(item);
 		item.removeFromInventory();
+		notifyObservers();
 	}
 	
 	public void showInventory() {

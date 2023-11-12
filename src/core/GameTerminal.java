@@ -25,6 +25,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import commands.CommandParser;
 import models.InventoryObserver;
@@ -41,7 +42,7 @@ public class GameTerminal implements InventoryObserver {
 	private JFrame frame;
 	private JTextArea textArea;
 	private JTextField inputField;
-	private JPanel iconGridPanel = new JPanel(new GridLayout(0, 4));
+	private JPanel iconGridPanel = new JPanel(new GridLayout(0, 6));
 
     public GameTerminal(CommandParser parser, Player player, List<Room> allRooms2) {
         this.parser = parser;
@@ -168,15 +169,20 @@ public class GameTerminal implements InventoryObserver {
         	
         	if (currentRoom.isRoomCompleted()) {
                 textArea.append("Congratulations, you've completed the room!\n");
-                player.dropUnnecessaryItems();
+                // player.dropUnnecessaryItems();
                 currentRoomIndex++;
                 if (currentRoomIndex >= allRooms.size()) {
                     textArea.append("You have escaped all rooms!\n");
+                    textArea.append("Game Over! Thanks for playing!\n");
+                    int delay = 5000;
+                    Timer timer = new Timer(delay, e -> frame.dispose());
+                    timer.setRepeats(false);
+                    timer.start();
+                    return;
                 } else {
                     // Setup for the next room
                     currentRoom = allRooms.get(currentRoomIndex);
                     textArea.append("You have moved to the next room.\n");
-                    // Assuming getDescription is modified to return a String
                     textArea.append("You are in \n");
                     currentRoom.getDescription();
                 }
