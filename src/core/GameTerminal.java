@@ -35,14 +35,14 @@ import models.Room;
 
 public class GameTerminal implements InventoryObserver {
 
-    private CommandParser parser;
-    private Player player;
-    private List<Room> allRooms;
+    private final CommandParser parser;
+    private final Player player;
+    private final List<Room> allRooms;
     private int currentRoomIndex = 0;
 	private JFrame frame;
 	private JTextArea textArea;
 	private JTextField inputField;
-	private JPanel iconGridPanel = new JPanel(new GridLayout(0, 6));
+	private final JPanel iconGridPanel = new JPanel(new GridLayout(0, 6));
 
     public GameTerminal(CommandParser parser, Player player, List<Room> allRooms2) {
         this.parser = parser;
@@ -56,12 +56,12 @@ public class GameTerminal implements InventoryObserver {
     
     private void initialize() {
     	frame = new JFrame("Game Terminal");
-    	frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setSize(800, 600);
-    	
-    	JPanel centerPanel = new JPanel();
+		frame.setLocationRelativeTo(null);
+
+		JPanel centerPanel = new JPanel();
     	centerPanel.setLayout(new BorderLayout());
     	
     	textArea = new JTextArea();
@@ -80,7 +80,6 @@ public class GameTerminal implements InventoryObserver {
     	eastPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
     	
     	JPanel westPanel = new JPanel() {
-    	    private static final long serialVersionUID = 1L;
     	    private Image stoneImage;
 
     	    {
