@@ -1,40 +1,22 @@
 package core;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.List;
-
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
-
 import commands.CommandParser;
 import models.InventoryObserver;
 import models.Item;
 import models.Player;
 import models.Room;
 
-public class GameTerminal implements InventoryObserver {
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
+public class GameTerminal implements InventoryObserver {
+	// TODO: Refactor to comply with MessageDispatcher pattern
     private final CommandParser parser;
     private final Player player;
     private final List<Room> allRooms;
@@ -66,6 +48,7 @@ public class GameTerminal implements InventoryObserver {
     	
     	textArea = new JTextArea();
     	setUpTextArea();
+		MessageDispatcher.getInstance().setTextArea(textArea);
     	JScrollPane scrollPane = new JScrollPane(textArea);
     	centerPanel.add(scrollPane, BorderLayout.CENTER);
     	
@@ -78,35 +61,10 @@ public class GameTerminal implements InventoryObserver {
     	
     	JPanel eastPanel = new JPanel();
     	eastPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-    	
-    	JPanel westPanel = new JPanel() {
-    	    private Image stoneImage;
 
-    	    {
-    	        try {
-    	            stoneImage = ImageIO.read(new File("resources/Stone.png"));
-    	        } catch (IOException e) {
-    	            System.out.println("No File to Read.");
-    	        }
-    	    }
+		JPanel westPanel = getWestPanel();
 
-    	    @Override
-    	    protected void paintComponent(Graphics g) {
-    	        super.paintComponent(g);
-    	        if (stoneImage != null) {
-    	            for (int x = 0; x < getWidth(); x += stoneImage.getWidth(this)) {
-    	                for (int y = 0; y < getHeight(); y += stoneImage.getHeight(this)) {
-    	                    g.drawImage(stoneImage, x, y, this);
-    	                }
-    	            }
-    	        }
-    	    }
-    	};
-    	int preferredWidth = 64;
-    	westPanel.setPreferredSize(new Dimension(preferredWidth, westPanel.getHeight()));
-    	westPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-    	
-    	JPanel northPanel = new JPanel();
+		JPanel northPanel = new JPanel();
     	northPanel.setLayout(new BorderLayout());
     	
     	JButton hintButton = new JButton("Get Hint");
@@ -123,16 +81,43 @@ public class GameTerminal implements InventoryObserver {
     	frame.setVisible(true);
     }
 
-    private void setUpTextArea() {
+	private JPanel getWestPanel() {
+		JPanel westPanel = new JPanel() {
+			private Image stoneImage;
+
+			{
+				try {
+					stoneImage = ImageIO.read(new File("resources/Stone.png"));
+				} catch (IOException e) {
+					System.out.println("No File to Read.");
+				}
+			}
+
+			@Override
+			protected void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				if (stoneImage != null) {
+					for (int x = 0; x < getWidth(); x += stoneImage.getWidth(this)) {
+						for (int y = 0; y < getHeight(); y += stoneImage.getHeight(this)) {
+							g.drawImage(stoneImage, x, y, this);
+						}
+					}
+				}
+			}
+		};
+		int preferredWidth = 64;
+		westPanel.setPreferredSize(new Dimension(preferredWidth, westPanel.getHeight()));
+		westPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		return westPanel;
+	}
+
+	private void setUpTextArea() {
     	textArea.setEditable(false);
         textArea.setFont(new Font("Consolas", Font.PLAIN, 12));
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         textArea.setBackground(Color.BLACK);
         textArea.setForeground(new Color(0, 255, 65));
-        
-        PrintStream printStream = new PrintStream(new TextAreaOutputStream(textArea));
-        System.setOut(printStream);        
     }
     
     private void setUpInputField() {
@@ -182,7 +167,7 @@ public class GameTerminal implements InventoryObserver {
                     // Setup for the next room
                     currentRoom = allRooms.get(currentRoomIndex);
                     textArea.append("You have moved to the next room.\n");
-                    textArea.append("You are in \n");
+                    // textArea.append("You are in \n");
                     currentRoom.getDescription();
                 }
             }

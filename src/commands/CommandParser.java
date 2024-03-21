@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import models.*;
 
 public class CommandParser {
-	
+	// TODO: Refactor to comply with MessageDispatcher pattern
 	private void pickUpItem(Player player, Item item, Room currentRoom) {
 		if (item != null) {
 			player.addToInventory(item);
@@ -20,7 +20,7 @@ public class CommandParser {
 	private void useItem(Player player, Item item) {
 		if (item != null) {
 			item.use();
-			if (item.needed == false) {
+			if (!item.needed) {
 				player.removeFromInventory(item);
 			}
 		} else {
@@ -56,10 +56,10 @@ public class CommandParser {
 	    } else {
 	        System.out.println("The door is unlocked.");
 	    }
-	    if (room.hasPuzzles() && room.isAllPuzzlesSolved() == false) {
+	    if (room.hasPuzzles() && !room.isAllPuzzlesSolved()) {
 	        System.out.println("There's a puzzle here: ");
 	        room.showPuzzles();
-	    } else if (room.isAllPuzzlesSolved() == true) {
+	    } else if (room.isAllPuzzlesSolved()) {
 	    	System.out.println("There are no more puzzles to solve.");
 	    }
 	    System.out.println("What would you like to do?");
@@ -119,16 +119,12 @@ public class CommandParser {
 		if (currentRoom.isAllPuzzlesSolved()) {
 			currentRoom.roomBox.setAccessible(true);
 			System.out.println("The Box is now Accessible.");
-	    	if (currentRoom.roomBox.getLocked() == true) {
+	    	if (currentRoom.roomBox.getLocked()) {
 	    		currentRoom.roomBox.toggleLockBox(false);
 	    	}
 		}
-		
-		if (currentRoom.isRoomCompleted()) {
-			return true;
-		} else {
-			return false;
-		}
+
+        return currentRoom.isRoomCompleted();
 	}
 
 	

@@ -15,14 +15,36 @@ import java.util.Map;
 
 import models.*;
 
+/**
+ * The JSONReader is a utility class designed to read and process room data from JSON files.
+ * It navigates through the complex structure of a JSON file, extracting essential information
+ * to dynamically create Room objects along with their associated items, puzzles, and boxes.
+ * This class is crucial for games where room data is externalized, allowing for easy updates
+ * and modifications without the need to alter the game's codebase. By parsing the JSON file,
+ * JSONReader populates the game environment with interactive rooms, each equipped with unique
+ * items, challenges (puzzles), and configurations (boxes) that players can interact with.
+ * <p>
+ * <h3>Key functionalities include:</h3>
+ * <ul>
+ * <li> Reading room data from a specified JSON file.</li>
+ * <li> Extracting room attributes like name, description, items, and puzzles.</li>
+ * <li> Dynamically creating Room, Item, Puzzle, and Box objects based on the extracted data.</li>
+ * <li> Handling exceptions related to file access and JSON parsing to ensure robust execution.</li>
+ * </ul>
+ *
+ * @author Sarah Yack
+ */
 public class JSONReader {
-	
+	/**
+	 * Reads the room data from a JSON file and returns a list of Room objects.
+	 * @return List(ArrayList) of Room objects
+	 */
 	public static List<Room> readRoomData() {
         List<Room> rooms = new ArrayList<>();
         String filePath = "resources/rooms.json";
         
         try {
-        	
+
         	InputStream is = new FileInputStream(filePath);
             JSONTokener tokener = new JSONTokener(is);
             JSONObject object = new JSONObject(tokener);
@@ -71,9 +93,7 @@ public class JSONReader {
                 rooms.add(room);
             }
             
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+        } catch (FileNotFoundException | JSONException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,6 +101,11 @@ public class JSONReader {
         return rooms;
     }
 
+	/**
+	 *
+	 * @param boxJson A JSON object representing a box
+	 * @return New Box object
+	 */
 	private static Box createBox(JSONObject boxJson) {
 		boolean isLocked = boxJson.getBoolean("isLocked");
 	    String description = boxJson.getString("description");
@@ -103,6 +128,12 @@ public class JSONReader {
 	    return new Box(isLocked, description, boxItems, itemsNeeded);
 	}
 
+	/**
+	 * Takes in a JSONObject and returns a Puzzle object based on its type.
+	 * @param puzzleObject Puzzle JSON object
+	 * @param itemMap Hashmap of items (name, Item)
+	 * @return New Puzzle object or null
+	 */
 	private static Puzzle createPuzzleByType(JSONObject puzzleObject, Map<String, Item> itemMap) {
 	    String type = puzzleObject.getString("type");
 	    String description = puzzleObject.getString("description");

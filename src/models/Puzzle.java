@@ -4,10 +4,12 @@ public abstract class Puzzle {
 	enum PuzzleType {
 		WORD, OBJECT, MOVEMENT, ANIMAL
 	}
-	private String description;
+	// TODO: Add some sort of identifier for organization
+	// TODO: Write documentation
+	private final String description;
 	protected String hint;
 	protected boolean isSolved;
-	private PuzzleType type;
+	private final PuzzleType type;
 	
 	public Puzzle(String description, PuzzleType puzzleType) {
 		this.description = description;
