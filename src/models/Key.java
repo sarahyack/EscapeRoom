@@ -1,10 +1,14 @@
 package models;
 
+import core.MessageDispatcher;
+import utils.Priority;
+import utils.PriorityMessage;
+
 /**
  * The unique key that opens the door.
  */
 public class Key extends Item {
-	// TODO: Refactor to comply with MessageDispatcher pattern
+	MessageDispatcher dispatch = MessageDispatcher.getInstance();
 	public Key(String name, String description) {
 		super(name, description);
 	}
@@ -28,9 +32,9 @@ public class Key extends Item {
 			currentRoom.toggleLocked(false);
 			Item key = player.findItemInInventory(this.getName());
 			player.removeFromInventory(key);
-			System.out.println("Door has been unlocked.");
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "You unlocked the door.\n"));
 		} else {
-			System.out.println("You do not have the key.");
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "You do not have the key.\n"));
 		}
 	}
 

@@ -1,5 +1,7 @@
 package models;
 
+// TODO: Refactor to comply with MessageDispatcher pattern
+
 public class WordPuzzle extends Puzzle {
 	private String solution;
 

@@ -5,6 +5,8 @@ import models.InventoryObserver;
 import models.Item;
 import models.Player;
 import models.Room;
+import utils.Priority;
+import utils.PriorityMessage;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -15,11 +17,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Handles all UI elements for the game as well as the game logic and output.
+ */
 public class GameTerminal implements InventoryObserver {
-	// TODO: Refactor to comply with MessageDispatcher pattern
     private final CommandParser parser;
     private final Player player;
     private final List<Room> allRooms;
+	private final MessageDispatcher dispatch = MessageDispatcher.getInstance();
+	private Timer dispatchTimer = null;
     private int currentRoomIndex = 0;
 	private JFrame frame;
 	private JTextArea textArea;
@@ -33,10 +39,13 @@ public class GameTerminal implements InventoryObserver {
         
         initialize();
         postWelcomeMessage();
-        
+        timedDispatch(false);
     }
-    
-    private void initialize() {
+
+	/**
+	 * Initializes the JFrame to have a text area and input field. The layout is set to be a BorderLayout with a North, West, South, and Center panel.
+	 */
+	private void initialize() {
     	frame = new JFrame("Game Terminal");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
@@ -48,7 +57,7 @@ public class GameTerminal implements InventoryObserver {
     	
     	textArea = new JTextArea();
     	setUpTextArea();
-		MessageDispatcher.getInstance().setTextArea(textArea);
+		dispatch.setTextArea(textArea);
     	JScrollPane scrollPane = new JScrollPane(textArea);
     	centerPanel.add(scrollPane, BorderLayout.CENTER);
     	
@@ -81,6 +90,10 @@ public class GameTerminal implements InventoryObserver {
     	frame.setVisible(true);
     }
 
+	/**
+	 * Sets up the west panel with 64x64 repeated stone images.
+	 * @return JPanel with 64x64 stone images
+	 */
 	private JPanel getWestPanel() {
 		JPanel westPanel = new JPanel() {
 			private Image stoneImage;
@@ -111,6 +124,9 @@ public class GameTerminal implements InventoryObserver {
 		return westPanel;
 	}
 
+	/**
+	 * Sets up the text area for the game.
+	 */
 	private void setUpTextArea() {
     	textArea.setEditable(false);
         textArea.setFont(new Font("Consolas", Font.PLAIN, 12));
@@ -119,8 +135,11 @@ public class GameTerminal implements InventoryObserver {
         textArea.setBackground(Color.BLACK);
         textArea.setForeground(new Color(0, 255, 65));
     }
-    
-    private void setUpInputField() {
+
+	/**
+	 * Sets up the input field for the game. Adds an action listener to handle user input.
+	 */
+	private void setUpInputField() {
     	
     	inputField.setFont(new Font("Consolas", Font.PLAIN, 16));
         inputField.setBackground(Color.BLACK);
@@ -128,36 +147,47 @@ public class GameTerminal implements InventoryObserver {
         inputField.setCaretColor(Color.WHITE);
         inputField.addActionListener(e -> {
             String text = inputField.getText();
-            textArea.append("> " + text + "\n");
+			PriorityMessage message = new PriorityMessage(Priority.HIGH, "> " + text + "\n");
+			dispatch.createPriorityMessage(message);
             inputField.setText("");
 
             handleCommand(text);
         });
     }
 
+	/**
+	 * Sends the first message to the player.
+	 */
     private void postWelcomeMessage() {
-        textArea.append("Welcome to Escape Room!\n");
+		dispatch.createPriorityMessage(new PriorityMessage(Priority.HIGH, "Welcome to Escape Room!\n"));
         Room currentRoom = allRooms.get(currentRoomIndex);
-        textArea.append("You are in:\n");
+		dispatch.createPriorityMessage(new PriorityMessage(Priority.HIGH, "You are in the " + currentRoom.getName() + ".\n"));
         currentRoom.getDescription();
     }   
 
+	/**
+	 * Handles the user input and dispatches messages to the player.
+	 * @param command The user input
+	 */
     private void handleCommand(String command) {
 
         if (command.equalsIgnoreCase("quit")) {
+			dispatch.dispatchMessages();
+			timedDispatch(true);
         	frame.dispose();
-        	return;
         } else {
         	Room currentRoom = allRooms.get(currentRoomIndex);
         	parser.parseCommand(command, player, currentRoom);
         	
         	if (currentRoom.isRoomCompleted()) {
-                textArea.append("Congratulations, you've completed the room!\n");
+				dispatch.createPriorityMessage(new PriorityMessage(Priority.HIGH, "Congratulations, you've completed the room!\n"));
                 // player.dropUnnecessaryItems();
                 currentRoomIndex++;
                 if (currentRoomIndex >= allRooms.size()) {
-                    textArea.append("You have escaped all rooms!\n");
-                    textArea.append("Game Over! Thanks for playing!\n");
+					dispatch.createPriorityMessage(new PriorityMessage(Priority.HIGH, "You have escaped all rooms!\n"));
+					dispatch.createPriorityMessage(new PriorityMessage(Priority.HIGH, "Game Over! Thanks for playing!\n"));
+					dispatch.dispatchMessages();
+					timedDispatch(true);
                     int delay = 5000;
                     Timer timer = new Timer(delay, e -> frame.dispose());
                     timer.setRepeats(false);
@@ -166,15 +196,40 @@ public class GameTerminal implements InventoryObserver {
                 } else {
                     // Setup for the next room
                     currentRoom = allRooms.get(currentRoomIndex);
-                    textArea.append("You have moved to the next room.\n");
+					dispatch.createPriorityMessage(new PriorityMessage(Priority.HIGH, "You have moved to the next room.\n"));
+					dispatch.createPriorityMessage(new PriorityMessage(Priority.HIGH, "You are in the " + currentRoom.getName() + ".\n"));
                     // textArea.append("You are in \n");
                     currentRoom.getDescription();
                 }
             }
         }
     }
-    
-    public void updateInventoryDisplay() {
+
+	/**
+	 * Starts or stops the dispatch timer.
+	 * @param endGame If true, stops the timer. If false, starts the timer.
+	 */
+	private void timedDispatch(boolean endGame) {
+		if (dispatchTimer == null) {
+			dispatchTimer = new Timer(100, e -> {
+				dispatch.dispatchMessages();
+			});
+			dispatchTimer.setRepeats(true);
+		}
+		if (!endGame) {
+			if (!dispatchTimer.isRunning()) {
+				dispatchTimer.start();
+			}
+		} else {
+			dispatchTimer.stop();
+			dispatchTimer = null;
+		}
+	}
+
+	/**
+	 * Resets and Updates the inventory display.
+	 */
+	private void updateInventoryDisplay() {
     	SwingUtilities.invokeLater(() -> {
     		iconGridPanel.removeAll();
         	
@@ -201,6 +256,10 @@ public class GameTerminal implements InventoryObserver {
     	
     }
 
+	/**
+	 * Implements the Observer interface to update the inventory display.
+	 * @param player The Player Object
+	 */
     @Override
     public void inventoryChanged(Player player) {
         updateInventoryDisplay();

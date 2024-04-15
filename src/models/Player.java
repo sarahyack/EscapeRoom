@@ -1,4 +1,8 @@
 package models;
+import core.MessageDispatcher;
+import utils.Priority;
+import utils.PriorityMessage;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +19,7 @@ import java.util.List;
 public class Player {
 	private final ArrayList<Item> inventory;
 	private final List<InventoryObserver> observers = new ArrayList<>();
+	MessageDispatcher dispatch = MessageDispatcher.getInstance();
 	
 	public Player() {
 		inventory = new ArrayList<>();
@@ -41,20 +46,16 @@ public class Player {
 	}
 
 	/**
-	 * Shows the contents of the inventory.
-	 * <p>
-	 * <b>Note: This method is to be overhauled</b>.
+	 * Displays the name and description of each item in the inventory.
 	 */
 	public void showInventory() {
-		// TODO: Refactor to comply with MessageDispatcher pattern
 		if (hasItemsInInventory()) {
-			System.out.println("Items In Your Inventory:");
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.HIGH, "Items In Your Inventory: " + "\n"));
 			for (Item item : inventory) {
-				System.out.print(item.getName() + " - ");
-				System.out.println(item.getDescription());
+				dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, item.getName() + " - " + item.getDescription() + "\n"));
 			}
 		} else {
-			System.out.println("There are no items in your inventory.");
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.HIGH, "There are no items in your inventory." + "\n"));
 		}
 	}
 

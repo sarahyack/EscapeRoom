@@ -4,16 +4,19 @@ import java.util.Arrays;
 
 import java.util.ArrayList;
 
+import core.MessageDispatcher;
 import models.*;
+import utils.Priority;
+import utils.PriorityMessage;
 
 public class CommandParser {
-	// TODO: Refactor to comply with MessageDispatcher pattern
+	private final MessageDispatcher dispatch = MessageDispatcher.getInstance();
 	private void pickUpItem(Player player, Item item, Room currentRoom) {
 		if (item != null) {
 			player.addToInventory(item);
 			currentRoom.removeItem(item);
 		} else {
-			System.out.println("Cannot pick up non-existent item.");
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "Cannot pick up non-existent item.\n"));
 		}
 	}
 	
@@ -24,16 +27,15 @@ public class CommandParser {
 				player.removeFromInventory(item);
 			}
 		} else {
-			System.out.println("Cannot use non-existent item.");
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "Cannot use non-existent item.\n"));
 		}
 	}
 	
 	private void examine(Item item) {
 		if (item != null) {
-			System.out.print(item.getName() + " - ");
-			System.out.println(item.getDescription());
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, item.getName() + " - " + item.getDescription() + "\n"));
 		} else {
-			System.out.println("Cannot examine a non-existent item.");
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "Cannot examine non-existent item.\n"));
 		}
 		
 	}
@@ -42,29 +44,29 @@ public class CommandParser {
 		if (item != null) {
 			player.removeFromInventory(item);
 			currentRoom.addItem(item);
-			System.out.println("You dropped: " + item);
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "You dropped: " + item.getName() + "\n"));
 		} else {
-			System.out.println("Cannot drop non-existent item.");
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "Cannot drop non-existent item.\n"));
 		}
 	}
 	
 	private void look(Room room) {
-	    System.out.print("You are in ");
+		dispatch.createPriorityMessage(new PriorityMessage(Priority.HIGH, "You are in " + room.getName() + "\n"));
 	    room.getDescription();
 	    if (room.hasLockedDoor()) {
-	        System.out.println("The door is locked.");
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.HIGH, "The door is locked.\n"));
 	    } else {
-	        System.out.println("The door is unlocked.");
+	        dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "The door is unlocked.\n"));
 	    }
 	    if (room.hasPuzzles() && !room.isAllPuzzlesSolved()) {
-	        System.out.println("There's a puzzle here: ");
-	        room.showPuzzles();
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "There's a puzzle here: \n"));
+			room.showPuzzles();
 	    } else if (room.isAllPuzzlesSolved()) {
-	    	System.out.println("There are no more puzzles to solve.");
+	    	dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "All puzzles are solved.\n"));
 	    }
-	    System.out.println("What would you like to do?");
+		dispatch.createPriorityMessage(new PriorityMessage(Priority.LOW, "What would you like to do?\n"));
 	}
-	//Need to implement this >
+	// TODO: Need to implement this >
 	public void openClose(Player player, OpenableItem item) {
 		item.open(player);
 		item.needed = false;
@@ -100,10 +102,10 @@ public class CommandParser {
 				"open [item or box] - Open an Openable Item or the Box",
 				"quit - Exit Game"
 		};
-		
-		System.out.println("List of Commands:");
+
+		dispatch.createPriorityMessage(new PriorityMessage(Priority.HIGH, "List of Commands:\n"));
 		for (String command : commands) {
-			System.out.println(command);
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, command + "\n"));
 		}
 	}
 	
@@ -111,14 +113,14 @@ public class CommandParser {
 	    if (parts.length > 1) {
 	        puzzle.trySolve(parts[1], player, currentRoom);
 	    } else {
-	        System.out.println("You need to provide an answer to solve the puzzle.");
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "You need to provide an answer to solve the puzzle.\n"));
 	    }
 	}
 	
 	private boolean determineIfDone(Room currentRoom) {
 		if (currentRoom.isAllPuzzlesSolved()) {
 			currentRoom.roomBox.setAccessible(true);
-			System.out.println("The Box is now Accessible.");
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "The Box is now Accessible.\n"));
 	    	if (currentRoom.roomBox.getLocked()) {
 	    		currentRoom.roomBox.toggleLockBox(false);
 	    	}
@@ -176,7 +178,7 @@ public class CommandParser {
 	    		((OpenableItem) item).open(player);
 	    		((OpenableItem) item).toggleOpen();
 	    	} else {
-	    		System.out.println("This item can't be opened or closed.");
+				dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "This item can't be opened or closed.\n"));
 	    	}
 	    } else if ("help".equalsIgnoreCase(command)) {
 	    	showHelp();
@@ -191,12 +193,12 @@ public class CommandParser {
 	    } else if ("solve".equals(command)) {
 	    	ArrayList<Puzzle> puzzles = currentRoom.getPuzzles();
 	    	if (puzzles == null || puzzles.isEmpty()) {
-	    		System.out.println("There is no puzzle here to solve.");
+				dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "There is no puzzle here to solve.\n"));
 	    		return;
 	    	} else {
 	    		for (Puzzle puzzle : puzzles) {
 		    		if (puzzle.isSolved()) {
-		    			System.out.println("This puzzle is solved.");
+						dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "This puzzle is already solved.\n"));
 		    			continue;
 		    		}
 		    		
@@ -220,7 +222,7 @@ public class CommandParser {
 	    	}
 	    }
 	    else {
-	        System.out.println("Invalid command: " + command);
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "Invalid command: " + command + "\n"));
 	    }
 	}
 

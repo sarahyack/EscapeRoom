@@ -1,5 +1,7 @@
 package models;
 
+// TODO: Refactor to comply with MessageDispatcher pattern
+
 public class MovementPuzzle extends Puzzle {
 	private String targetItem;
 	private String targetAction;

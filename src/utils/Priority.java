@@ -5,7 +5,7 @@ package utils;
  * Values are in the order of LOW -> NORMAL -> HIGH
  */
 public enum Priority {
-    LOW,
+    HIGH,
     NORMAL,
-    HIGH;
+    LOW
 }

@@ -1,6 +1,8 @@
 package models;
 
-// TODO: Refactor to comply with MessageDispatcher pattern
+import core.MessageDispatcher;
+import utils.Priority;
+import utils.PriorityMessage;
 
 /**
  * The base class for all items in the game. Attributes are name, description, and whether it has been added to the inventory.
@@ -10,6 +12,7 @@ public class Item {
 	private final String description;
 	protected boolean hasIt = false;
 	public boolean needed = true;
+	public static final MessageDispatcher dispatch = MessageDispatcher.getInstance();
 	
 	public Item(String name, String description) {
 		this.name = name;
@@ -21,7 +24,7 @@ public class Item {
 	 */
 	public void addToInventory() {
 		this.hasIt = true;
-		System.out.println("You added " + name + " to your Inventory.");
+		dispatch.createPriorityMessage(new PriorityMessage(Priority.LOW, "You added " + name + " to your Inventory.\n"));
 	}
 
 	/**
@@ -29,10 +32,10 @@ public class Item {
 	 */
 	public void use() {
 		if (this.hasIt) {
-			System.out.println("You used " + name + ".");
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.LOW, "You used " + name + ".\n"));
 			needed = false;
 		} else {
-			System.out.println("You don't have " + name + " yet.");
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.LOW, "You don't have " + name + ".\n"));
 		}
 	}
 
@@ -41,7 +44,7 @@ public class Item {
 	 */
 	public void removeFromInventory() {
 		hasIt = false;
-		System.out.println(name + " has been removed from your Inventory.");
+		dispatch.createPriorityMessage(new PriorityMessage(Priority.LOW, "You removed " + name + " from your Inventory.\n"));
 	}
 
 	/**

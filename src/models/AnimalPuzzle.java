@@ -2,6 +2,8 @@ package models;
 
 import java.util.HashMap;
 
+// TODO: Refactor to comply with MessageDispatcher pattern
+
 public class AnimalPuzzle extends Puzzle {
 	private HashMap<String, Boolean> animalTasks;
 

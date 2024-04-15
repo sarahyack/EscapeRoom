@@ -1,5 +1,9 @@
 package models;
 
+import core.MessageDispatcher;
+import utils.Priority;
+import utils.PriorityMessage;
+
 import java.util.ArrayList;
 
 /**
@@ -14,6 +18,7 @@ public class Room {
 	private final ArrayList<Item> roomContents;
 	public Box roomBox;
 	private final ArrayList<Puzzle> roomPuzzles;
+	private static final MessageDispatcher dispatch = MessageDispatcher.getInstance();
 	
 	public Room(String name, String description, ArrayList<Item> contents, Box currentBox, ArrayList<Puzzle> puzzles) {
 		this.name = name;
@@ -42,7 +47,7 @@ public class Room {
 	 * @param puzzleName String name of the puzzle
 	 * @return Puzzle object
 	 */
-	public Puzzle findPuzzleByName(String puzzleName) {
+	/*public Puzzle findPuzzleByName(String puzzleName) {
 		// TODO: Refactor with the Puzzle Class to have an identifier or name
 		for (Puzzle puzzle: roomPuzzles) {
 			if (puzzle.getName().equalsIgnoreCase(puzzleName)) {
@@ -50,7 +55,7 @@ public class Room {
 			}
 		}
 		return null;
-	}
+	}*/
 
 	/**
 	 * Checks if the room has a locked door
@@ -89,14 +94,15 @@ public class Room {
 	 * <b>Note: This method is to be overhauled</b>
 	 */
 	public void getDescription() {
-		// TODO: Refactor to comply with MessageDispatcher pattern
-		System.out.println(this.name);
-		System.out.println(this.description);
+		dispatch.createPriorityMessage(new PriorityMessage(Priority.HIGH, this.description + "\n"));
 		if (this.roomContents.isEmpty()) {
-			System.out.println("There are no items in the Room.");
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "There are no items in the Room.\n"));
 		} else {
-			System.out.print("Items in Room: ");
-			System.out.println(this.roomContents);
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "Items in Room:\n"));
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "-------------------\n"));
+			for (Item item : this.roomContents) {
+				dispatch.createPriorityMessage(new PriorityMessage(Priority.LOW, item.getName() + "\n"));
+			}
 		}
 	}
 
@@ -166,9 +172,8 @@ public class Room {
 	 * <b>Note: This method is to be overhauled</b>
 	 */
 	public void showPuzzles() {
-		// TODO: Refactor to comply with MessageDispatcher pattern
 	    for (Puzzle puzzle : roomPuzzles) {
-	        System.out.println("- " + puzzle.getDescription());
+			dispatch.createPriorityMessage(new PriorityMessage(Priority.NORMAL, "- " + puzzle.getDescription() + "\n"));
 	    }
 	}
 
